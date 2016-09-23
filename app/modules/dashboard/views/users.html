@@ -1,0 +1,157 @@
+<!--
+Author: Megha Shah
+Page Description: User Management
+Date: 20 Sept 2016
+-->
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        User management
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#/app/dashboard"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+       <li class="active">User management</li>
+    </ol>
+</section>
+<!-- Main content -->
+<section class="content">
+    <div class="row" data-ng-show="!vm.user_form">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-8">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <input ng-model="vm.user.search" id="user_search" placeholder="Search" class="form-control"/>
+                        </div>
+                        <div class="form-group">
+                            <select ng-model="vm.user.orderProp" class="form-control">
+                                <option value="name">Alphabetical</option>
+                                <option value="-name">Reverse Alphabetical</option>
+                                <option value="-id" selected>Newest</option>
+                                <option value="id" selected>Oldest</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select ng-model="vm.user.itemsPerPage" class="form-control">
+                                <option value="10" selected="">10</option>
+                                <option value="50">50</option>
+                                <option value="100" >100</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-sm-4 text-right">
+                    <button type="button" class="btn btn-primary" data-ng-click="vm.addFormShow();">Add Users</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-condensed table-striped">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>User type</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-show="vm.user.users.length <= 0"><td colspan="5" style="text-align:center;">Loading user data!!</td></tr>
+                        <tr ng-repeat="user in vm.user.users | filter:vm.user.search | orderBy:vm.user.orderProp">
+                            <td>{{user.id}}</td>
+                            <td>{{user.name}}</td>
+                            <td>{{user.email}}</td>
+                            <td>{{user.user_type == 1?'Client':'Admin user'}}</td>
+                            <td>{{user.status == 1?'Published':'Unpublished'}}</td>
+                            <td>
+                                <a href="javascript:void(0);" data-ng-click="vm.editFormShow(user.id);" title="Edit User"> <i class="fa fa-pencil" aria-hidden="true"></i> </a>
+                                <a href="javascript:void(0);" data-ng-click="vm.deleteUser(user.id);" title="Delete User"> <i class="fa fa-close" aria-hidden="true"></i> </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <pagination 
+      ng-model="currentPage"
+      total-items="vm.user.users.length"
+      max-size="maxSize"  
+      boundary-links="true">
+    </pagination>
+        </div>
+    </div>
+    <div class="row" data-ng-show="vm.user_form">
+        <div class="col-sm-12">
+            <div class="panel panel-info">
+                <div class="panel-heading text-center">
+                    {{vm.form_title | uppercase}} USER
+                </div>
+                <div class="panel-body">
+                    <form name="vm.userAddForm" data-ng-submit="vm.addUser(vm.getUser);">
+                        <div class="form-group" data-ng-show="vm.form_title == 'add'">
+                            <label for="email" class="col-md-12 control-label">Email</label>
+                            <div class="col-md-12">
+                                
+                                <input type="email" class="form-control" name="email" placeholder="Email Address" required data-ng-model="vm.getUser.email">
+                            </div>
+                        </div>
+                        <div class="form-group" data-ng-show="vm.form_title != 'add'">
+                            <label for="email" class="col-md-12 control-label">Email</label>
+                            <div class="col-md-12">
+                                <div class="form-content">{{vm.getUser.email}}</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="name" class="col-md-12 control-label  margin-top-10">Name</label>
+                            <div class="col-md-12">
+                                <input type="text" class="form-control" name="name" placeholder="Name" required data-ng-model="vm.getUser.name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="name" class="col-md-12 control-label  margin-top-10">User type</label>
+                            <div class="col-md-12">
+                                <select name="user_type" class="form-control" required data-ng-model="vm.getUser.user_type">
+                                    <option value="1" selected="">Client</option>
+                                    <option value="2">Admin user</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="name" class="col-md-12 control-label  margin-top-10">Status</label>
+                            <div class="col-md-12">
+                                <select name="status" class="form-control" required data-ng-model="vm.getUser.status">
+                                    <option value="1" selected="">Published</option>
+                                    <option value="2">Unpublished</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-if="vm.form_title == 'add'">
+                            <label for="password" class="col-md-12 control-label  margin-top-10" >Password</label>
+                            <div class="col-md-12">
+                                <input type="password" class="form-control" name="password" placeholder="Password" required data-ng-model="vm.getUser.password">
+                            </div>
+                        </div>
+                        <div class="form-group" ng-if="vm.form_title == 'add'">
+                            <label for="cpasswd" class="col-md-12 control-label  margin-top-10">Confirm Password</label>
+                            <div class="col-md-12">
+                                <input type="password" class="form-control" name="cpasswd" placeholder="Confirm Password" required data-ng-model="vm.getUser.confirmPassword">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 margin-top-20">
+                            <button type="submit" class="btn btn-success">
+                                Save <span class="glyphicon glyphicon-play"></span>
+                            </button>
+                            <button type="button" class="btn btn-warning" data-ng-click="vm.user_form=false;">
+                                Cancel <span class="glyphicon glyphicon-move"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!-- /.content -->
+
